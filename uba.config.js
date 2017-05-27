@@ -11,9 +11,9 @@ const chunks = [];
 
 
 glob.sync('./src/pages/**/index.js').forEach(path => {
-  const chunk = path.split('./src/pages/')[1].split('/index.js')[0]
-  entries[chunk] = path
-  chunks.push(chunk)
+  const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
+  entries[chunk] = [path, hotMiddlewareScript];
+  chunks.push(chunk);
 });
 
 console.log(entries);
@@ -69,7 +69,10 @@ var config = {
     new webpack.HotModuleReplacementPlugin()
   ],
   resolve: {
-    extensions: ['.js', 'jsx']
+    extensions: ['.js', 'jsx'],
+    alias: {
+      components: path.resolve(__dirname, 'src/components/')
+    }
   }
 }
 
