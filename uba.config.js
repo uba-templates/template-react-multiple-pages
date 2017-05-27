@@ -9,14 +9,12 @@ const entries = {};
 const chunks = [];
 
 
-
 glob.sync('./src/pages/**/index.js').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
-  entries[chunk] = [path, hotMiddlewareScript];
+  entries[chunk] = [path,hotMiddlewareScript];
   chunks.push(chunk);
 });
 
-console.log(entries);
 
 var config = {
   devtool: 'cheap-module-source-map',
@@ -78,6 +76,7 @@ var config = {
 
 glob.sync('./src/pages/**/*.html').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('/index.html')[0];
+  console.log(chunk);
   const filename = chunk + '.html';
   const htmlConf = {
     filename: filename,
