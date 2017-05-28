@@ -8,13 +8,11 @@ const glob = require('glob');
 const entries = {};
 const chunks = [];
 
-
 glob.sync('./src/pages/**/index.js').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
-  entries[chunk] = [path,hotMiddlewareScript];
+  entries[chunk] = [path, hotMiddlewareScript];
   chunks.push(chunk);
 });
-
 
 var config = {
   devtool: 'cheap-module-source-map',
@@ -29,45 +27,53 @@ var config = {
     "react-dom": "ReactDOM"
   },
   module: {
-    rules: [{
-      test: /\.js[x]?$/,
-      exclude: /(node_modules)/,
-      include: path.resolve('src'),
-      use: [{
-        loader: 'babel-loader'
-      }]
-    }, {
-      test: /\.css$/,
-      use: ExtractTextPlugin.extract({
-        use: ['css-loader'],
-        fallback: 'style-loader'
-      })
-    }, {
-      test: /\.(png|jpg|jpeg|gif|eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
-      exclude: /favicon\.png$/,
-      use: [{
-        loader: 'url-loader',
-        options: {
-          limit: 10000
-        }
-      }]
-    }]
+    rules: [
+      {
+        test: /\.js[x]?$/,
+        exclude: /(node_modules)/,
+        include: path.resolve('src'),
+        use: [
+          {
+            loader: 'babel-loader'
+          }
+        ]
+      }, {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({use: ['css-loader'], fallback: 'style-loader'})
+      }, {
+        test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
+        exclude: /favicon\.png$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 10000,
+              name: 'assets/images/[name].[hash:8].[ext]'
+            }
+          }
+        ]
+      }, {
+        test: /\.(eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'assets/fonts/[name].[hash:8].[ext]'
+            }
+          }
+        ]
+      }
+    ]
   },
   plugins: [
-    new CommonsChunkPlugin({
-      name: 'vendors',
-      filename: 'assets/js/vendors.js',
-      chunks: chunks,
-      minChunks: chunks.length
-    }),
-    new ExtractTextPlugin({
-      filename: 'assets/css/[name].css',
-      allChunks: true
-    }),
+    new CommonsChunkPlugin({name: 'vendors', filename: 'assets/js/vendors.js', chunks: chunks, minChunks: chunks.length}),
+    new ExtractTextPlugin({filename: 'assets/css/[name].css', allChunks: true}),
     new webpack.HotModuleReplacementPlugin()
   ],
   resolve: {
-    extensions: ['.js', 'jsx'],
+    extensions: [
+      '.js', 'jsx'
+    ],
     alias: {
       components: path.resolve(__dirname, 'src/components/')
     }
@@ -88,7 +94,5 @@ glob.sync('./src/pages/**/*.html').forEach(path => {
   }
   config.plugins.push(new HtmlWebpackPlugin(htmlConf));
 });
-
-
 
 module.exports = config;
