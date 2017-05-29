@@ -4,17 +4,25 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
+const uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 const glob = require('glob');
 const entries = {};
 const chunks = [];
+const prodEntries = {};
+const prodChunks = [];
 
 glob.sync('./src/pages/**/index.js').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
   entries[chunk] = [path, hotMiddlewareScript];
   chunks.push(chunk);
 });
+glob.sync('./src/pages/**/index.js').forEach(path => {
+  const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
+  prodEntries[chunk] = [path];
+  prodChunks.push(chunk);
+});
 
-var config = {
+var devConfig = {
   devtool: 'cheap-module-source-map',
   entry: entries,
   output: {
@@ -75,24 +83,111 @@ var config = {
       '.js', 'jsx'
     ],
     alias: {
-      components: path.resolve(__dirname, 'src/components/')
+      components: path.resolve(__dirname, 'src/components/'),
+      assets: path.resolve(__dirname, 'src/assets/')
+    }
+  }
+}
+
+var prodConfig = {
+  devtool: 'cheap-source-map',
+  entry: prodEntries,
+  output: {
+    path: path.resolve(__dirname, './dist'),
+    filename: 'assets/js/[name].js',
+    publicPath: '/'
+  },
+  externals: {
+    "react": "React",
+    "react-dom": "ReactDOM"
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js[x]?$/,
+        exclude: /(node_modules)/,
+        include: path.resolve('src'),
+        use: [
+          {
+            loader: 'babel-loader'
+          }
+        ]
+      }, {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({use: ['css-loader'], fallback: 'style-loader'})
+      }, {
+        test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
+        exclude: /favicon\.png$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 10000,
+              name: 'assets/images/[name].[hash:8].[ext]'
+            }
+          }
+        ]
+      }, {
+        test: /\.(eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'assets/fonts/[name].[hash:8].[ext]'
+            }
+          }
+        ]
+      }
+    ]
+  },
+  plugins: [
+    new CommonsChunkPlugin({name: 'vendors', filename: 'assets/js/vendors.js', chunks: prodChunks, minChunks: prodChunks.length}),
+    new ExtractTextPlugin({filename: 'assets/css/[name].css', allChunks: true}),
+    new uglifyJsPlugin({
+      compress: {
+        warnings: false
+      }
+    })
+  ],
+  resolve: {
+    extensions: [
+      '.js', 'jsx'
+    ],
+    alias: {
+      components: path.resolve(__dirname, 'src/components/'),
+      assets: path.resolve(__dirname, 'src/assets/')
     }
   }
 }
 
 glob.sync('./src/pages/**/*.html').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('/index.html')[0];
-  console.log(chunk);
   const filename = chunk + '.html';
   const htmlConf = {
     filename: filename,
     template: path,
     inject: 'body',
-    //favicon: './src/assets/img/logo.png',
+    favicon: './src/assets/images/favicon.png',
     hash: false,
     chunks: ['vendors', chunk]
   }
-  config.plugins.push(new HtmlWebpackPlugin(htmlConf));
+  devConfig.plugins.push(new HtmlWebpackPlugin(htmlConf));
+});
+glob.sync('./src/pages/**/*.html').forEach(path => {
+  const chunk = path.split('./src/pages/')[1].split('/index.html')[0];
+  const filename = chunk + '.html';
+  const htmlConf = {
+    filename: filename,
+    template: path,
+    inject: 'body',
+    favicon: './src/assets/images/favicon.png',
+    hash: false,
+    chunks: ['vendors', chunk]
+  }
+  prodConfig.plugins.push(new HtmlWebpackPlugin(htmlConf));
 });
 
-module.exports = config;
+module.exports = {
+  devConfig: devConfig,
+  prodConfig: prodConfig
+};
