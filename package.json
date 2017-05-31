@@ -4,8 +4,8 @@
   "description": "uba boilerplate react multipage",
   "main": "index.js",
   "scripts": {
-    "dev": "uba-cli server",
-    "build" : "uba-cli build"
+    "dev": "uba server",
+    "build" : "uba build"
   },
   "author": "yueming@yonyou.com",
   "license": "MIT",
@@ -20,7 +20,7 @@
     "glob": "^7.1.2",
     "html-webpack-plugin": "^2.28.0",
     "style-loader": "^0.18.1",
-    "uba-cli": "latest",
+    "uba": "latest",
     "url-loader": "^0.5.8",
     "webpack": "^2.6.1",
     "webpack-hot-middleware": "^2.18.0"
