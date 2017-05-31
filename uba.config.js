@@ -4,12 +4,17 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
+const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 const glob = require('glob');
 const entries = {};
 const chunks = [];
 const prodEntries = {};
 const prodChunks = [];
+const svrConfig = {
+  host: "127.0.0.1",
+  port: 3000
+};
 
 glob.sync('./src/pages/**/index.js').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
@@ -35,47 +40,53 @@ var devConfig = {
     "react-dom": "ReactDOM"
   },
   module: {
-    rules: [
-      {
-        test: /\.js[x]?$/,
-        exclude: /(node_modules)/,
-        include: path.resolve('src'),
-        use: [
-          {
-            loader: 'babel-loader'
-          }
-        ]
-      }, {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract({use: ['css-loader'], fallback: 'style-loader'})
-      }, {
-        test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
-        exclude: /favicon\.png$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              limit: 10000,
-              name: 'assets/images/[name].[hash:8].[ext]'
-            }
-          }
-        ]
-      }, {
-        test: /\.(eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: 'assets/fonts/[name].[hash:8].[ext]'
-            }
-          }
-        ]
-      }
-    ]
+    rules: [{
+      test: /\.js[x]?$/,
+      exclude: /(node_modules)/,
+      include: path.resolve('src'),
+      use: [{
+        loader: 'babel-loader'
+      }]
+    }, {
+      test: /\.css$/,
+      use: ExtractTextPlugin.extract({
+        use: ['css-loader'],
+        fallback: 'style-loader'
+      })
+    }, {
+      test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
+      exclude: /favicon\.png$/,
+      use: [{
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: 'assets/images/[name].[hash:8].[ext]'
+        }
+      }]
+    }, {
+      test: /\.(eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
+      use: [{
+        loader: 'file-loader',
+        options: {
+          name: 'assets/fonts/[name].[hash:8].[ext]'
+        }
+      }]
+    }]
   },
   plugins: [
-    new CommonsChunkPlugin({name: 'vendors', filename: 'assets/js/vendors.js', chunks: chunks, minChunks: chunks.length}),
-    new ExtractTextPlugin({filename: 'assets/css/[name].css', allChunks: true}),
+    new CommonsChunkPlugin({
+      name: 'vendors',
+      filename: 'assets/js/vendors.js',
+      chunks: chunks,
+      minChunks: chunks.length
+    }),
+    new ExtractTextPlugin({
+      filename: 'assets/css/[name].css',
+      allChunks: true
+    }),
+    new OpenBrowserPlugin({
+      url: `http://${svrConfig.host}:${svrConfig.port}`
+    }),
     new webpack.HotModuleReplacementPlugin()
   ],
   resolve: {
@@ -102,47 +113,50 @@ var prodConfig = {
     "react-dom": "ReactDOM"
   },
   module: {
-    rules: [
-      {
-        test: /\.js[x]?$/,
-        exclude: /(node_modules)/,
-        include: path.resolve('src'),
-        use: [
-          {
-            loader: 'babel-loader'
-          }
-        ]
-      }, {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract({use: ['css-loader'], fallback: 'style-loader'})
-      }, {
-        test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
-        exclude: /favicon\.png$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              limit: 10000,
-              name: 'assets/images/[name].[hash:8].[ext]'
-            }
-          }
-        ]
-      }, {
-        test: /\.(eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: 'assets/fonts/[name].[hash:8].[ext]'
-            }
-          }
-        ]
-      }
-    ]
+    rules: [{
+      test: /\.js[x]?$/,
+      exclude: /(node_modules)/,
+      include: path.resolve('src'),
+      use: [{
+        loader: 'babel-loader'
+      }]
+    }, {
+      test: /\.css$/,
+      use: ExtractTextPlugin.extract({
+        use: ['css-loader'],
+        fallback: 'style-loader'
+      })
+    }, {
+      test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
+      exclude: /favicon\.png$/,
+      use: [{
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: 'assets/images/[name].[hash:8].[ext]'
+        }
+      }]
+    }, {
+      test: /\.(eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
+      use: [{
+        loader: 'file-loader',
+        options: {
+          name: 'assets/fonts/[name].[hash:8].[ext]'
+        }
+      }]
+    }]
   },
   plugins: [
-    new CommonsChunkPlugin({name: 'vendors', filename: 'assets/js/vendors.js', chunks: prodChunks, minChunks: prodChunks.length}),
-    new ExtractTextPlugin({filename: 'assets/css/[name].css', allChunks: true}),
+    new CommonsChunkPlugin({
+      name: 'vendors',
+      filename: 'assets/js/vendors.js',
+      chunks: prodChunks,
+      minChunks: prodChunks.length
+    }),
+    new ExtractTextPlugin({
+      filename: 'assets/css/[name].css',
+      allChunks: true
+    }),
     new uglifyJsPlugin({
       compress: {
         warnings: false
@@ -181,7 +195,7 @@ glob.sync('./src/pages/**/*.html').forEach(path => {
     template: path,
     inject: 'body',
     favicon: './src/assets/images/favicon.png',
-    hash: false,
+    hash: true,
     chunks: ['vendors', chunk]
   }
   prodConfig.plugins.push(new HtmlWebpackPlugin(htmlConf));
@@ -189,5 +203,6 @@ glob.sync('./src/pages/**/*.html').forEach(path => {
 
 module.exports = {
   devConfig: devConfig,
-  prodConfig: prodConfig
+  prodConfig: prodConfig,
+  svrConfig: svrConfig
 };
