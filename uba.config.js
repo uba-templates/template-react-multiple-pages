@@ -15,6 +15,10 @@ const svrConfig = {
   host: "127.0.0.1",
   port: 3000
 };
+const proxyConfig = [{
+  router: "/proxy",
+  url: "cnodejs.org"
+}];
 
 glob.sync('./src/pages/**/index.js').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
@@ -204,5 +208,6 @@ glob.sync('./src/pages/**/*.html').forEach(path => {
 module.exports = {
   devConfig: devConfig,
   prodConfig: prodConfig,
-  svrConfig: svrConfig
+  svrConfig: svrConfig,
+  proxyConfig: proxyConfig
 };
