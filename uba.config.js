@@ -19,6 +19,9 @@ const proxyConfig = [{
   router: "/proxy",
   url: "cnodejs.org"
 }];
+const staticConfig = {
+  folder : "src"
+};
 
 glob.sync('./src/pages/**/index.js').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
@@ -209,5 +212,6 @@ module.exports = {
   devConfig: devConfig,
   prodConfig: prodConfig,
   svrConfig: svrConfig,
-  proxyConfig: proxyConfig
+  proxyConfig: proxyConfig,
+  staticConfig : staticConfig
 };
