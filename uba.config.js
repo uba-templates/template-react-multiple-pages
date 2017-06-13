@@ -18,6 +18,7 @@ const svrConfig = {
   port: 3000
 };
 const proxyConfig = [{
+  enable : false,
   router: "/proxy",
   url: "cnodejs.org"
 }];
