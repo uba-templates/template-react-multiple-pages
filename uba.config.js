@@ -5,8 +5,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
 const OpenBrowserPlugin = require('open-browser-webpack-plugin');
-const Dashboard = require('webpack-dashboard');
-const DashboardPlugin = require('webpack-dashboard/plugin');
 const uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 const glob = require('glob');
 const entries = {};
@@ -110,11 +108,6 @@ var devConfig = {
   }
 }
 
-//解决兼容问题紧紧支持mac webpack-dashboard
-
-if(os.platform() == "darwin"){
-  devConfig.plugins.push(new DashboardPlugin(new Dashboard().setData));
-}
 
 var prodConfig = {
   devtool: 'cheap-source-map',
