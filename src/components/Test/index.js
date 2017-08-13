@@ -6,6 +6,6 @@ export default class Test extends Component{
    super(props);
  }
   render(){
-    return <div className="Test">Hello {this.props.name} , I`m from Components.</div>
+    return <div className="Test">Hello {this.props.name}</div>
   }
 }

@@ -1,47 +1,58 @@
 const path = require("path");
-const hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true';
+const hotMiddlewareScript = "webpack-hot-middleware/client?reload=true";
 const webpack = require("webpack");
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
-const OpenBrowserPlugin = require('open-browser-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
+const OpenBrowserPlugin = require("open-browser-webpack-plugin");
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
-const glob = require('glob');
+const glob = require("glob");
 const entries = {};
 const chunks = [];
 const prodEntries = {};
 const prodChunks = [];
+
+
+//服务器启动IP与端口
 const svrConfig = {
   host: "127.0.0.1",
   port: 3000
 };
+
+//代理模式切换，enable:true启用代理，数据模拟失效.只对开发有效
 const proxyConfig = [{
   enable : false,
-  router: "/proxy",
-  url: "cnodejs.org"
+  router: "/",
+  url: "cnodejs.org",
+  options : {
+    filter : function(req,res){
+      return (req.url.indexOf("webpack_hmr") > -1 ? false : true);
+    }
+  }
 }];
+
+//静态资源托管设置
 const staticConfig = {
-  folder : "src"
+  folder : "src/static"
 };
 
-glob.sync('./src/pages/**/index.js').forEach(path => {
-  const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
+//dev多入口配置
+glob.sync("./src/pages/**/index.js").forEach(path => {
+  const chunk = path.split("./src/pages/")[1].split("/index.js")[0];
   entries[chunk] = [path, hotMiddlewareScript];
   chunks.push(chunk);
 });
-glob.sync('./src/pages/**/index.js').forEach(path => {
-  const chunk = path.split('./src/pages/')[1].split('/index.js')[0];
-  prodEntries[chunk] = [path];
-  prodChunks.push(chunk);
-});
 
+
+//dev webpack基本配置
 var devConfig = {
-  devtool: 'cheap-module-source-map',
+  devtool: "cheap-module-source-map",
   entry: entries,
   output: {
-    path: path.resolve(__dirname, './dist'),
-    filename: 'assets/js/[name].js',
-    publicPath: '/'
+    path: path.resolve(__dirname, "./dist"),
+    filename: "assets/js/[name].js",
+    publicPath: "/"
   },
   externals: {
     "react": "React",
@@ -51,45 +62,45 @@ var devConfig = {
     rules: [{
       test: /\.js[x]?$/,
       exclude: /(node_modules)/,
-      include: path.resolve('src'),
+      include: path.resolve("src"),
       use: [{
-        loader: 'babel-loader'
+        loader: "babel-loader"
       }]
     }, {
       test: /\.css$/,
       use: ExtractTextPlugin.extract({
-        use: ['css-loader'],
-        fallback: 'style-loader'
+        use: ["css-loader","postcss-loader"],
+        fallback: "style-loader"
       })
     }, {
       test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
       exclude: /favicon\.png$/,
       use: [{
-        loader: 'url-loader',
+        loader: "url-loader",
         options: {
           limit: 10000,
-          name: 'assets/images/[name].[hash:8].[ext]'
+          name: "assets/images/[name].[ext]"
         }
       }]
     }, {
       test: /\.(eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
       use: [{
-        loader: 'file-loader',
+        loader: "file-loader",
         options: {
-          name: 'assets/fonts/[name].[hash:8].[ext]'
+          name: "assets/fonts/[name].[ext]"
         }
       }]
     }]
   },
   plugins: [
     new CommonsChunkPlugin({
-      name: 'vendors',
-      filename: 'assets/js/vendors.js',
+      name: "vendors",
+      filename: "assets/js/vendors.js",
       chunks: chunks,
       minChunks: chunks.length
     }),
     new ExtractTextPlugin({
-      filename: 'assets/css/[name].css',
+      filename: "assets/css/[name].css",
       allChunks: true
     }),
     new OpenBrowserPlugin({
@@ -99,23 +110,48 @@ var devConfig = {
   ],
   resolve: {
     extensions: [
-      '.js', 'jsx'
+      ".js", "jsx"
     ],
     alias: {
-      components: path.resolve(__dirname, 'src/components/'),
-      assets: path.resolve(__dirname, 'src/assets/')
+      components: path.resolve(__dirname, "src/components/"),
+      assets: path.resolve(__dirname, "src/assets/"),
+      pages : path.resolve(__dirname, "src/pages/"),
     }
   }
 }
 
 
+//多页面配置
+glob.sync("./src/pages/**/*.html").forEach(path => {
+  const chunk = path.split("./src/pages/")[1].split("/index.html")[0];
+  const filename = chunk + ".html";
+  const htmlConf = {
+    filename: filename,
+    template: path,
+    inject: "body",
+    favicon: "./src/assets/images/favicon.png",
+    hash: true,
+    chunks: ["vendors", chunk]
+  }
+  devConfig.plugins.push(new HtmlWebpackPlugin(htmlConf));
+});
+
+
+
+//product多入口配置
+glob.sync("./src/pages/**/index.js").forEach(path => {
+  const chunk = path.split("./src/pages/")[1].split("/index.js")[0];
+  prodEntries[chunk] = [path];
+  prodChunks.push(chunk);
+});
+
+//product webpack基本配置
 var prodConfig = {
-  devtool: 'cheap-source-map',
   entry: prodEntries,
   output: {
-    path: path.resolve(__dirname, './dist'),
-    filename: 'assets/js/[name].js',
-    publicPath: '/'
+    path: path.resolve(__dirname, "./dist"),
+    filename: "assets/js/[name].[hash].js",
+    publicPath: "/"
   },
   externals: {
     "react": "React",
@@ -125,47 +161,48 @@ var prodConfig = {
     rules: [{
       test: /\.js[x]?$/,
       exclude: /(node_modules)/,
-      include: path.resolve('src'),
+      include: path.resolve("src"),
       use: [{
-        loader: 'babel-loader'
+        loader: "babel-loader"
       }]
     }, {
       test: /\.css$/,
       use: ExtractTextPlugin.extract({
-        use: ['css-loader'],
-        fallback: 'style-loader'
+        use: ["css-loader","postcss-loader"],
+        fallback: "style-loader"
       })
     }, {
       test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
       exclude: /favicon\.png$/,
       use: [{
-        loader: 'url-loader',
+        loader: "url-loader",
         options: {
           limit: 10000,
-          name: 'assets/images/[name].[hash:8].[ext]'
+          name: "assets/images/[name].[hash:8].[ext]"
         }
       }]
     }, {
       test: /\.(eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
       use: [{
-        loader: 'file-loader',
+        loader: "file-loader",
         options: {
-          name: 'assets/fonts/[name].[hash:8].[ext]'
+          name: "assets/fonts/[name].[hash:8].[ext]"
         }
       }]
     }]
   },
   plugins: [
     new CommonsChunkPlugin({
-      name: 'vendors',
-      filename: 'assets/js/vendors.js',
+      name: "vendors",
+      filename: "assets/js/vendors.js",
       chunks: prodChunks,
       minChunks: prodChunks.length
     }),
     new ExtractTextPlugin({
-      filename: 'assets/css/[name].css',
+      filename: "assets/css/[name].[hash].css",
       allChunks: true
     }),
+    new CleanWebpackPlugin(['dist']),
     new uglifyJsPlugin({
       compress: {
         warnings: false
@@ -174,38 +211,27 @@ var prodConfig = {
   ],
   resolve: {
     extensions: [
-      '.js', 'jsx'
+      ".js", "jsx"
     ],
     alias: {
-      components: path.resolve(__dirname, 'src/components/'),
-      assets: path.resolve(__dirname, 'src/assets/')
+      components: path.resolve(__dirname, "src/components/"),
+      assets: path.resolve(__dirname, "src/assets/"),
+      pages: path.resolve(__dirname, "src/pages/")
     }
   }
 }
 
-glob.sync('./src/pages/**/*.html').forEach(path => {
-  const chunk = path.split('./src/pages/')[1].split('/index.html')[0];
-  const filename = chunk + '.html';
+//多页面配置
+glob.sync("./src/pages/**/*.html").forEach(path => {
+  const chunk = path.split("./src/pages/")[1].split("/index.html")[0];
+  const filename = chunk + ".html";
   const htmlConf = {
     filename: filename,
     template: path,
-    inject: 'body',
-    favicon: './src/assets/images/favicon.png',
-    hash: false,
-    chunks: ['vendors', chunk]
-  }
-  devConfig.plugins.push(new HtmlWebpackPlugin(htmlConf));
-});
-glob.sync('./src/pages/**/*.html').forEach(path => {
-  const chunk = path.split('./src/pages/')[1].split('/index.html')[0];
-  const filename = chunk + '.html';
-  const htmlConf = {
-    filename: filename,
-    template: path,
-    inject: 'body',
-    favicon: './src/assets/images/favicon.png',
+    inject: "body",
+    favicon: "./src/assets/images/favicon.png",
     hash: true,
-    chunks: ['vendors', chunk]
+    chunks: ["vendors", chunk]
   }
   prodConfig.plugins.push(new HtmlWebpackPlugin(htmlConf));
 });

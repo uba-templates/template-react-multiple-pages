@@ -1,12 +1,12 @@
+/*
+ * 配置数据模拟
+*/
+
 module.exports = {
   "GET": [{
-    "/User/Home": "./mock/api/user/home.json"
-  }, {
-    "/User/Get": "./mock/api/user/allsection.json"
+    "/User/Get": "./mock/api/user/get.json"
   }],
   "POST": [{
-    "/User/Post": "./mock/api/user/home.json"
-  },{
-    "/User/Send": "./mock/api/send/user.json"
+    "/User/Post": "./mock/api/user/post.json"
   }]
 }
