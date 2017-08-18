@@ -38,7 +38,7 @@ const staticConfig = {
 };
 
 //dev多入口配置
-glob.sync("./src/pages/**/index.js").forEach(path => {
+glob.sync("./src/pages/*/index.js").forEach(path => {
   const chunk = path.split("./src/pages/")[1].split("/index.js")[0];
   entries[chunk] = [path, hotMiddlewareScript];
   chunks.push(chunk);
@@ -51,7 +51,7 @@ var devConfig = {
   entry: entries,
   output: {
     path: path.resolve(__dirname, "./dist"),
-    filename: "assets/js/[name].js",
+    filename: "[name].js",
     publicPath: "/"
   },
   externals: {
@@ -72,6 +72,12 @@ var devConfig = {
         use: ["css-loader","postcss-loader"],
         fallback: "style-loader"
       })
+    },{
+      test: /\.less$/,
+      use: ExtractTextPlugin.extract({
+        use: ['css-loader', 'postcss-loader', 'less-loader'],
+        fallback: 'style-loader'
+      })
     }, {
       test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
       exclude: /favicon\.png$/,
@@ -79,7 +85,7 @@ var devConfig = {
         loader: "url-loader",
         options: {
           limit: 10000,
-          name: "assets/images/[name].[ext]"
+          name: "images/[name].[ext]"
         }
       }]
     }, {
@@ -87,7 +93,7 @@ var devConfig = {
       use: [{
         loader: "file-loader",
         options: {
-          name: "assets/fonts/[name].[ext]"
+          name: "[name].[ext]"
         }
       }]
     }]
@@ -95,12 +101,12 @@ var devConfig = {
   plugins: [
     new CommonsChunkPlugin({
       name: "vendors",
-      filename: "assets/js/vendors.js",
+      filename: "vendors.js",
       chunks: chunks,
       minChunks: chunks.length
     }),
     new ExtractTextPlugin({
-      filename: "assets/css/[name].css",
+      filename: "[name].css",
       allChunks: true
     }),
     new OpenBrowserPlugin({
@@ -122,7 +128,7 @@ var devConfig = {
 
 
 //多页面配置
-glob.sync("./src/pages/**/*.html").forEach(path => {
+glob.sync("./src/pages/*/*.html").forEach(path => {
   const chunk = path.split("./src/pages/")[1].split("/index.html")[0];
   const filename = chunk + ".html";
   const htmlConf = {
@@ -139,7 +145,7 @@ glob.sync("./src/pages/**/*.html").forEach(path => {
 
 
 //product多入口配置
-glob.sync("./src/pages/**/index.js").forEach(path => {
+glob.sync("./src/pages/*/index.js").forEach(path => {
   const chunk = path.split("./src/pages/")[1].split("/index.js")[0];
   prodEntries[chunk] = [path];
   prodChunks.push(chunk);
@@ -150,8 +156,8 @@ var prodConfig = {
   entry: prodEntries,
   output: {
     path: path.resolve(__dirname, "./dist"),
-    filename: "assets/js/[name].[hash].js",
-    publicPath: "/"
+    filename: "[name].[hash:8].js",
+    publicPath: ""
   },
   externals: {
     "react": "React",
@@ -171,6 +177,12 @@ var prodConfig = {
         use: ["css-loader","postcss-loader"],
         fallback: "style-loader"
       })
+    },{
+      test: /\.less$/,
+      use: ExtractTextPlugin.extract({
+        use: ['css-loader', 'postcss-loader', 'less-loader'],
+        fallback: 'style-loader'
+      })
     }, {
       test: /\.(png|jpg|jpeg|gif)(\?.+)?$/,
       exclude: /favicon\.png$/,
@@ -178,7 +190,7 @@ var prodConfig = {
         loader: "url-loader",
         options: {
           limit: 10000,
-          name: "assets/images/[name].[hash:8].[ext]"
+          name: "images/[name].[hash:8].[ext]"
         }
       }]
     }, {
@@ -186,7 +198,7 @@ var prodConfig = {
       use: [{
         loader: "file-loader",
         options: {
-          name: "assets/fonts/[name].[hash:8].[ext]"
+          name: "[name].[hash:8].[ext]"
         }
       }]
     }]
@@ -194,12 +206,12 @@ var prodConfig = {
   plugins: [
     new CommonsChunkPlugin({
       name: "vendors",
-      filename: "assets/js/vendors.js",
+      filename: "vendors.[hash:8].js",
       chunks: prodChunks,
       minChunks: prodChunks.length
     }),
     new ExtractTextPlugin({
-      filename: "assets/css/[name].[hash].css",
+      filename: "[name].[hash:8].css",
       allChunks: true
     }),
     new CleanWebpackPlugin(['dist']),
@@ -222,7 +234,7 @@ var prodConfig = {
 }
 
 //多页面配置
-glob.sync("./src/pages/**/*.html").forEach(path => {
+glob.sync("./src/pages/*/*.html").forEach(path => {
   const chunk = path.split("./src/pages/")[1].split("/index.html")[0];
   const filename = chunk + ".html";
   const htmlConf = {
