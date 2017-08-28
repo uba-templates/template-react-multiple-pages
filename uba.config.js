@@ -17,7 +17,9 @@ const prodChunks = [];
 //服务器启动IP与端口
 const svrConfig = {
   host: "127.0.0.1",
-  port: 3000
+  port: 3000,
+  //是否开启静默模式？true开启，紧显示错误和警告，如要看信息为false。
+  noInfo: false
 };
 
 //代理模式切换，enable:true启用代理，数据模拟失效.只对开发有效
