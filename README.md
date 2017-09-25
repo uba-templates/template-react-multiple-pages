@@ -1,4 +1,4 @@
-# React Multiple Pages Application 1.0.0
+# React Multiple Pages Application
 
 > 基于webpack+react搭建基本快速开发脚手架并使用强大的集成开发工具[ uba ](https://github.com/iuap-design/tinper-uba)
 
@@ -20,7 +20,7 @@
 
 2. 执行`uba`命令来查看帮助.
 
-3. 生成本脚手架 命令：`uba init`选择`template-react-single-pages`回车继续等待安装即可。(可以使用默认的npm来安装，也可以手动后续来安装)
+3. 生成本脚手架 命令：`uba init`选择`template-react-multiple-pages`回车继续等待安装即可。(可以使用默认的npm来安装，也可以手动后续来安装)
 
 4. 启动开发`npm run dev`,稍等片刻会自动打开默认浏览器显示.
 
