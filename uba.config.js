@@ -58,7 +58,8 @@ var devConfig = {
   },
   externals: {
     "react": "React",
-    "react-dom": "ReactDOM"
+    "react-dom": "ReactDOM",
+    "react-router": "ReactRouter"
   },
   module: {
     rules: [{
@@ -101,6 +102,7 @@ var devConfig = {
     }]
   },
   plugins: [
+    new webpack.NamedModulesPlugin(),
     new CommonsChunkPlugin({
       name: "vendors",
       filename: "vendors.js",
@@ -163,7 +165,8 @@ var prodConfig = {
   },
   externals: {
     "react": "React",
-    "react-dom": "ReactDOM"
+    "react-dom": "ReactDOM",
+    "react-router": "ReactRouter"
   },
   module: {
     rules: [{
