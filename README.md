@@ -14,6 +14,18 @@
 
 - 方便开发人员在快速搭建`react`前端开发项目，无需学习复杂配置环境，拆箱即用.
 
+
+## 参数
+
+> uba server --port 4000 --noInfo --logLevel debug --chunks --noOpen
+
+- `--noProcess` 不显示进度百分比
+- `--logLevel` 日志级别，默认：info 其他为：trace,debug,info,warn,error,silent
+- `--chunks` 不显示详细的chunks信息
+- `--port` 服务器端口设置，默认：3000，如冲突随机端口
+- `--noOpen` 不自动打开浏览器
+
+
 ### 安装与使用
 
 1. 安装`uba` 命令：`npm install uba -g`.
